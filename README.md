@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Business Kids
 
-## Getting Started
+An interactive AI startup studio for ages 9–12. Children choose their customer, product, value, name, brand, price, first customer and marketing approach, then create a launch blueprint and an editable website preview.
 
-First, run the development server:
+## Run
 
-```bash
+```sh
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000/kids-business. The root route also leads to the studio.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Keep `OPENAI_API_KEY` in `.env.local`. It is read only by server-side API code. The existing defaults are `gpt-5.6-luna` for structured coaching/copy and `gpt-image-2` for logos. Optional server-only `OPENAI_TEXT_MODEL` and `OPENAI_IMAGE_MODEL` variables can override them for models available to your account. Real requests incur OpenAI usage; there are no simulated AI success responses.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Verify
 
-## Learn More
+```sh
+npm run lint
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+The production build uses Next.js's supported Webpack compiler because Turbopack's build workers cannot bind ports in the restricted execution environment. Development keeps the existing `next dev` configuration. The existing App Router font configuration fetches Geist during a build and needs network access.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Implementation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `pages/kids-business.js` owns structured business state, wizard navigation, request handling and browser persistence.
+- `components/StudioUI.js`, `components/steps/BrandStep.js` and `components/Blueprint.js` render the decision studio.
+- `pages/api/coach.js`, `generate-logo.js` and `generate-website.js` call OpenAI server-side. The old `generate-ideas` URL now points to the structured coach.
+- `lib/business.js` validates business/website data; `lib/server/ai.js` owns the server-only SDK integration.
+- `components/website/` renders three owned React templates and a browser-frame preview with copy, template, color, logo-size and AI instruction editing. AI never produces executable code.
+- `lib/persistence.js` saves multiple independent projects (including their logos) in IndexedDB. My ideas opens the project library; New idea saves the current business before starting another. Keep building restores the selected project's exact step, answers, AI choices, logo and website. The previous single-project save is migrated automatically. The header includes a Save idea button and saved status. Saves stay in the same browser on this device; they do not sync between browsers. Deleting a project requires confirmation, and storage failures preserve the in-tab work.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Nothing is published, no domains are registered, and the preview does not accept payments. Guardians should help with spending, selling, accounts, taxes and any eventual publishing. The existing transparent Business Kids corporate logo is preserved separately from generated business logos.
